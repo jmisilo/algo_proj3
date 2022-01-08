@@ -1,5 +1,6 @@
 // https://www.softwaretestinghelp.com/graph-implementation-cpp/amp/?fbclid=IwAR25tR-sQQUZrWyoj0AdvHsAzdNvmwmVeiqyPrnMna1aBr4kwIpK1Cg47zI#C_Graph_Implementation_Using_Adjacency_List
 #include <iostream>
+#include <vector>
 
 using namespace std;
 
@@ -75,7 +76,7 @@ void displayAdjList(adjNode* ptr, int i) {
     cout << endl;
 }
 
-void displayVertexDegOut(adjNode* ptr, int i) {
+int displayVertexDegOut(adjNode* ptr) {
     int deg = 0;
 
     while (ptr != nullptr) {
@@ -83,10 +84,10 @@ void displayVertexDegOut(adjNode* ptr, int i) {
         deg++;
     }
 
-    cout << endl << "Stopien wychodzacy wierzcholka " << i << ": " << deg << endl;
+    return deg;
 }
 
-void displayVertexDegIn(DiaGraph graph, int i, int n, int N) {
+int displayVertexDegIn(DiaGraph graph, int i, int n, int N) {
     adjNode* ptr;
     int vertexesIn [n];
 
@@ -101,7 +102,7 @@ void displayVertexDegIn(DiaGraph graph, int i, int n, int N) {
         }
     }
 
-    cout << "Stopien wchodzacy wierzcholka " << i << ": " << counter << endl;
+    return counter;
 }
 
 void displayLoops(adjNode* ptr, int i) {
@@ -114,16 +115,54 @@ void displayLoops(adjNode* ptr, int i) {
     }
 }
 
+void displaySepVertices(DiaGraph graph, int N) {
+    vector<int> vect = {};
+    for(int i = 0; i < N; i++) if (displayVertexDegOut(graph.head[i]) == 0) vect.push_back(i);
+
+    if(vect.size() > 0) {
+        cout << "Wierzcholki izolowane grafu:" << endl;
+        for(int i = 0; i < vect.size(); i++) {
+            cout << vect[i];
+            if (vect.size() - 1 != i) cout << ", ";
+        }
+    } else cout << "Graf nie ma wierzcholkow izolowanych." << endl;
+}
+
+void twoDirectEdges(DiaGraph graph, int n, int N) {
+    vector<vector<int>> twoDirEdges;
+    vector<int> helper;
+    for(int j = 0; j < N; j++) {
+        adjNode* ptr = graph.head[j];
+
+        while (ptr != nullptr) {
+            adjNode* ptr2 = graph.head[ptr->val];
+
+            while(ptr2 != nullptr) {
+
+                if(ptr2->val == j && ptr->val != j) {
+                    helper = {j, ptr->val};
+                    twoDirEdges.push_back(helper);
+                }
+                ptr2 = ptr2->next;
+            }
+
+            ptr = ptr->next;
+        }
+    }
+
+    for(int j = 0; j < twoDirEdges.size(); j++) cout << "(" << twoDirEdges[j][0] << ", " << twoDirEdges[j][1] << ")" << endl;
+}
+
 // graph implementation
 int main() {
     // graph edges array.
     graphEdge edges[] = {
         // (x, y, w) -> edge from x to y with weight w
-        {0,1,2}, {0,2,4}, {1,4,3}, {1,1,1}, {2,3,2}, {3,1,4}, {4,3,3}
+        {0,1,2}, {0,2,4}, {1,4,3}, {1,1,1}, {2,3,2}, {3,2,2}, {3,1,4}, {1,3,4}, {4,3,3}, {4, 5, 10}, {4, 6, 7}
     };
 
     // Number of vertices in the graph
-    int N = 5;
+    int N = 7;
 
     // calculate number of edges
     int n = sizeof(edges)/sizeof(edges[0]);
@@ -133,14 +172,21 @@ int main() {
 
     // print adjacency list representation of graph
     cout<<"Graph adjacency list "<<endl<<"(start_vertex, end_vertex, weight):"<<endl;
-
+    int degIn, degOut;
+    /*
     for (int i = 0; i < N; i++) {
         // display adjacent vertices of vertex i
+        cout << endl;
         displayAdjList(diagraph.head[i], i);
         displayLoops(diagraph.head[i], i);
-        displayVertexDegOut(diagraph.head[i], i);
-        displayVertexDegIn(diagraph, i, n, N);
-    }
+        degOut = displayVertexDegOut(diagraph.head[i]);
+        degIn = displayVertexDegIn(diagraph, i, n, N);
 
+        cout << endl << "Stopien wychodzacy wierzcholka " << i << ": " << degOut << endl;
+        cout << "Stopien wchodzacy wierzcholka " << i << ": " << degIn << endl;
+    }
+    displaySepVertices(diagraph, N);
+*/
+    twoDirectEdges(diagraph, n, N);
     return 0;
 }
