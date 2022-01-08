@@ -1,6 +1,7 @@
 // https://www.softwaretestinghelp.com/graph-implementation-cpp/amp/?fbclid=IwAR25tR-sQQUZrWyoj0AdvHsAzdNvmwmVeiqyPrnMna1aBr4kwIpK1Cg47zI#C_Graph_Implementation_Using_Adjacency_List
 #include <iostream>
 #include <vector>
+#include <algorithm>
 
 using namespace std;
 
@@ -139,7 +140,8 @@ void twoDirectEdges(DiaGraph graph, int n, int N) {
 
             while(ptr2 != nullptr) {
 
-                if(ptr2->val == j && ptr->val != j) {
+                helper = {ptr->val, j};
+                if(ptr2->val == j && ptr->val != j && find(twoDirEdges.begin(), twoDirEdges.end(), helper) == twoDirEdges.end()) {
                     helper = {j, ptr->val};
                     twoDirEdges.push_back(helper);
                 }
