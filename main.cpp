@@ -68,7 +68,8 @@ class DiaGraph {
 
 // print all adjacent vertices of given vertex
 void displayAdjList(adjNode* ptr, int i) {
-    cout << "Sasiedzi wierzcholka " << i << ":" << endl;
+    cout << "Sasiedzi wierzcholka " << i << ":" << endl << "(start_vertex, end_vertex, weight): " << endl;
+
     while (ptr != nullptr) {
         // (start_vertex, end_vertex, weight)
         cout << "(" << i << ", " << ptr->val << ", " << ptr->cost << ") ";
@@ -89,16 +90,12 @@ int displayVertexDegOut(adjNode* ptr) {
 }
 
 int displayVertexDegIn(DiaGraph graph, int i, int n, int N) {
-    adjNode* ptr;
-    int vertexesIn [n];
-
     int counter = 0;
     for (int j = 0; j < N; j++) {
-        ptr = graph.head[j];
+        adjNode* ptr = graph.head[j];
 
         while (ptr != nullptr) {
             if (i == ptr->val) counter++;
-
             ptr = ptr->next;
         }
     }
@@ -114,6 +111,7 @@ void displayLoops(adjNode* ptr, int i) {
             cout << "(" << i << ", " << ptr->val << ", " << ptr->cost << ") ";
             ptr = ptr->next;
     }
+    cout << endl;
 }
 
 void displaySepVertices(DiaGraph graph, int N) {
@@ -129,9 +127,10 @@ void displaySepVertices(DiaGraph graph, int N) {
     } else cout << "Graf nie ma wierzcholkow izolowanych." << endl;
 }
 
-void twoDirectEdges(DiaGraph graph, int n, int N) {
+void twoDirectEdges(DiaGraph graph, int N) {
     vector<vector<int>> twoDirEdges;
     vector<int> helper;
+
     for(int j = 0; j < N; j++) {
         adjNode* ptr = graph.head[j];
 
@@ -151,8 +150,34 @@ void twoDirectEdges(DiaGraph graph, int n, int N) {
             ptr = ptr->next;
         }
     }
-
+    cout << "Krawedzie dwukierunkowe:" << endl;
     for(int j = 0; j < twoDirEdges.size(); j++) cout << "(" << twoDirEdges[j][0] << ", " << twoDirEdges[j][1] << ")" << endl;
+}
+
+void everyVertexAdjacent(DiaGraph graph, int N) {
+    vector<int> adjacents, targets;
+    bool isInAdjacents;
+
+    for(int j = 0; j < N; j++) {
+        adjNode* ptr = graph.head[j];
+        isInAdjacents = false;
+        adjacents.clear();
+        for(int z = 0; z < adjacents.size(); z++) if(ptr->val == adjacents[z]) isInAdjacents = true;
+
+        while (ptr != nullptr) {
+            if(ptr->val != j && !isInAdjacents) adjacents.push_back(ptr->val);
+        //cout << "adjecents size: " << adjacents.size() << " N - 1 = " << N-1 << endl;
+            ptr = ptr->next;
+        }
+
+        if(adjacents.size() == N - 1) targets.push_back(j);
+    }
+
+    cout << "Wierzcholki bedace sasiadami kazdego innego wierzcholka:" << endl;
+    for (int j = 0; j < targets.size(); j++) {
+        cout << targets[j];
+        if(j != targets.size() - 1) cout << ", ";
+    }
 }
 
 // graph implementation
@@ -160,11 +185,11 @@ int main() {
     // graph edges array.
     graphEdge edges[] = {
         // (x, y, w) -> edge from x to y with weight w
-        {0,1,2}, {0,2,4}, {1,4,3}, {1,1,1}, {2,3,2}, {3,2,2}, {3,1,4}, {1,3,4}, {4,3,3}, {4, 5, 10}, {4, 6, 7}
+        {0,0,6}, {0,1,3}, {0,2,1}, {0,3,10}, {0,4,6}, {0,5,5}, {1,4,6}, {4,1,3}, {2,1,3}, {2,3,10}
     };
 
     // Number of vertices in the graph
-    int N = 7;
+    int N = 6;
 
     // calculate number of edges
     int n = sizeof(edges)/sizeof(edges[0]);
@@ -172,23 +197,71 @@ int main() {
     // construct graph
     DiaGraph diagraph(edges, n, N);
 
-    // print adjacency list representation of graph
-    cout<<"Graph adjacency list "<<endl<<"(start_vertex, end_vertex, weight):"<<endl;
-    int degIn, degOut;
+    cout << "Prosze wybrac zadanie do wykonania:" << endl << "1. Lista sasiedztwa" <<
+    endl << "2. Wszystkie wierzcholki, ktore sa sasiadami kazdego wierzcholka" <<
+    endl << "3. Stopnie wychodzace" << endl << "4. Stopnie wchodzace" << endl << "5. Wszystkie wierzcholki izolowane" <<
+    endl << "6. Wszystkie petle" << endl << "7. Wszystkie krawedzie dwukierunkowe" << endl;
+
+    int choice, degIn, degOut;
+    cin >> choice;
+
+    switch(choice) {
+        case 1:
+            for (int i = 0; i < N; i++)
+                displayAdjList(diagraph.head[i], i);
+        break;
+
+        case 2:
+            everyVertexAdjacent(diagraph, N);
+        break;
+
+        case 3:
+            for (int i = 0; i < N; i++) {
+                degOut = displayVertexDegOut(diagraph.head[i]);
+                cout << endl << "Stopien wychodzacy wierzcholka " << i << ": " << degOut << endl;
+            }
+        break;
+
+        case 4:
+            for (int i = 0; i < N; i++) {
+                degIn = displayVertexDegIn(diagraph, i, n, N);
+                cout << "Stopien wchodzacy wierzcholka " << i << ": " << degIn << endl;
+            }
+        break;
+
+        case 5:
+            displaySepVertices(diagraph, N);
+        break;
+
+        case 6:
+            for (int i = 0; i < N; i++)
+                displayLoops(diagraph.head[i], i);
+        break;
+
+        case 7:
+            twoDirectEdges(diagraph, N);
+        break;
+    }
     /*
     for (int i = 0; i < N; i++) {
         // display adjacent vertices of vertex i
         cout << endl;
-        displayAdjList(diagraph.head[i], i);
-        displayLoops(diagraph.head[i], i);
-        degOut = displayVertexDegOut(diagraph.head[i]);
-        degIn = displayVertexDegIn(diagraph, i, n, N);
 
-        cout << endl << "Stopien wychodzacy wierzcholka " << i << ": " << degOut << endl;
-        cout << "Stopien wchodzacy wierzcholka " << i << ": " << degIn << endl;
+        displayAdjList(diagraph.head[i], i);
+
+        //displayLoops(diagraph.head[i], i);
+        //degOut = displayVertexDegOut(diagraph.head[i]);
+        //degIn = displayVertexDegIn(diagraph, i, n, N);
+
+        //cout << endl << "Stopien wychodzacy wierzcholka " << i << ": " << degOut << endl;
+        //cout << "Stopien wchodzacy wierzcholka " << i << ": " << degIn << endl;
     }
-    displaySepVertices(diagraph, N);
+    //displaySepVertices(diagraph, N);
+    //twoDirectEdges(diagraph, N);
+    //everyVertexAdjacent(diagraph, N);
 */
-    twoDirectEdges(diagraph, n, N);
+
+
+
     return 0;
 }
