@@ -89,18 +89,21 @@ int displayVertexDegOut(adjNode* ptr) {
     return deg;
 }
 
-int displayVertexDegIn(DiaGraph graph, int i, int n, int N) {
-    int counter = 0;
-    for (int j = 0; j < N; j++) {
-        adjNode* ptr = graph.head[j];
+int displayVertexDegIn(graphEdge edges[], int n, int N) {
 
-        while (ptr != nullptr) {
-            if (i == ptr->val) counter++;
-            ptr = ptr->next;
+
+    int c;
+    for(int z=0; z < N; z++) {
+        c = 0;
+        for (int j = 0; j < n; j++) {
+            //cout << " (" << edges[j].start_ver << ", " << edges[j].end_ver << ", " << edges[j].weight << ") " << endl;
+            if(edges[j].end_ver == z) {
+            c = c + 1;
+            }
         }
-    }
 
-    return counter;
+        cout << "Stopien wchodzacy wierzcholka " << z << ": " << c << endl;
+    }
 }
 
 void displayLoops(adjNode* ptr, int i) {
@@ -166,7 +169,7 @@ void everyVertexAdjacent(DiaGraph graph, int N) {
 
         while (ptr != nullptr) {
             if(ptr->val != j && !isInAdjacents) adjacents.push_back(ptr->val);
-        //cout << "adjecents size: " << adjacents.size() << " N - 1 = " << N-1 << endl;
+
             ptr = ptr->next;
         }
 
@@ -218,15 +221,12 @@ int main() {
         case 3:
             for (int i = 0; i < N; i++) {
                 degOut = displayVertexDegOut(diagraph.head[i]);
-                cout << endl << "Stopien wychodzacy wierzcholka " << i << ": " << degOut << endl;
+                cout << endl << "Stopien wychodzacy wierzcholka " << i << ": " << degOut;
             }
         break;
 
         case 4:
-            for (int i = 0; i < N; i++) {
-                degIn = displayVertexDegIn(diagraph, i, n, N);
-                cout << "Stopien wchodzacy wierzcholka " << i << ": " << degIn << endl;
-            }
+            displayVertexDegIn(edges, n, N);
         break;
 
         case 5:
@@ -242,26 +242,6 @@ int main() {
             twoDirectEdges(diagraph, N);
         break;
     }
-    /*
-    for (int i = 0; i < N; i++) {
-        // display adjacent vertices of vertex i
-        cout << endl;
-
-        displayAdjList(diagraph.head[i], i);
-
-        //displayLoops(diagraph.head[i], i);
-        //degOut = displayVertexDegOut(diagraph.head[i]);
-        //degIn = displayVertexDegIn(diagraph, i, n, N);
-
-        //cout << endl << "Stopien wychodzacy wierzcholka " << i << ": " << degOut << endl;
-        //cout << "Stopien wchodzacy wierzcholka " << i << ": " << degIn << endl;
-    }
-    //displaySepVertices(diagraph, N);
-    //twoDirectEdges(diagraph, N);
-    //everyVertexAdjacent(diagraph, N);
-*/
-
-
 
     return 0;
 }
