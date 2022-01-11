@@ -1,7 +1,4 @@
-// https://www.softwaretestinghelp.com/graph-implementation-cpp/amp/?fbclid=IwAR25tR-sQQUZrWyoj0AdvHsAzdNvmwmVeiqyPrnMna1aBr4kwIpK1Cg47zI#C_Graph_Implementation_Using_Adjacency_List
 #include <iostream>
-//#include <vector>
-//#include <algorithm>
 #include "graph.hpp"
 
 using namespace std;

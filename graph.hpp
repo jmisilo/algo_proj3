@@ -67,11 +67,12 @@ class DiaGraph {
 
 // print all adjacent vertices of given vertex
 void displayAdjList(adjNode* ptr, int i) {
-    cout << "Sasiedzi wierzcholka " << i << ":" << endl << "(start_vertex, end_vertex, weight): " << endl;
+    cout << "Sasiedzi wierzcholka " << i << ":" << endl;
 
     while (ptr != nullptr) {
         // (start_vertex, end_vertex, weight)
-        cout << "(" << i << ", " << ptr->val << ", " << ptr->cost << ") ";
+        //cout << "(" << i << ", " << ptr->val << ", " << ptr->cost << ") ";
+        cout << ptr->val << ", ";
         ptr = ptr->next;
     }
     cout << endl;
