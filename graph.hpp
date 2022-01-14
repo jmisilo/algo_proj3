@@ -1,184 +1,138 @@
 #include <iostream>
 #include <vector>
-#include <algorithm>
+#include <set>
 
 using namespace std;
 
-// stores adjacency list items
-struct adjNode {
-    int val, cost;
-
-    adjNode* next;
+struct edge {
+    int ver_out, ver_in; // wierzcholek wychodzacy, wierzcholek wchodzacy
 };
 
-// structure to store edges
-struct graphEdge {
-    int start_ver, end_ver, weight;
-};
-
-class DiaGraph {
-    // insert new nodes into adjacency list from given graph
-    adjNode* getAdjListNode(int value, int weight, adjNode* head) {
-        adjNode* newNode = new adjNode;
-
-        newNode->val = value;
-        newNode->cost = weight;
-
-        newNode->next = head;   // point new node to current head
-
-        return newNode;
-    }
-
-    int N;  // number of nodes in the graph
+class DiGraph {
 
     public:
-        adjNode **head;                //adjacency list as array of pointers
+            vector<edge> edges;
+            vector<int> vertices;
 
-        // Constructor
-        DiaGraph(graphEdge edges[], int n, int N)  {
+            int n, N;
 
-            // allocate new node
-            head = new adjNode*[N]();
-
-            this->N = N;
-
-            // initialize head pointer for all vertices
-            for (int i = 0; i < N; ++i) head[i] = nullptr;
-
-            // construct directed graph by adding edges to it
-            for (unsigned i = 0; i < n; i++)  {
-                int start_ver = edges[i].start_ver;
-                int end_ver = edges[i].end_ver;
-                int weight = edges[i].weight;
-                // insert in the beginning
-                adjNode* newNode = getAdjListNode(end_ver, weight, head[start_ver]);
-
-                // point head pointer to new node
-                head[start_ver] = newNode;
+            DiGraph(vector<edge> edges, vector<int> vertices) {
+                this->edges = edges;
+                this->vertices = vertices;
+                this->N = this->edges.size();
+                this->n = this->vertices.size();
             }
-        }
-        // Destructor
-        ~DiaGraph() {
-            for (int i = 0; i < N; i++) delete[] head[i];
 
-            delete[] head;
-        }
-};
+            // 1
+            void displayAdj() {
+                for (int i=0; i<n; i++) {
+                    vector<int> adj = {};
 
-// print all adjacent vertices of given vertex
-void displayAdjList(adjNode* ptr, int i) {
-    cout << "Sasiedzi wierzcholka " << i << ":" << endl;
+                    for (int j=0; j<N; j++) {
 
-    while (ptr != nullptr) {
-        // (start_vertex, end_vertex, weight)
-        //cout << "(" << i << ", " << ptr->val << ", " << ptr->cost << ") ";
-        cout << ptr->val << ", ";
-        ptr = ptr->next;
-    }
-    cout << endl;
-}
+                        if (this->vertices[i] == this->edges[j].ver_out) adj.push_back(edges[j].ver_in);
+                    }
 
-int displayVertexDegOut(adjNode* ptr) {
-    int deg = 0;
-
-    while (ptr != nullptr) {
-        ptr = ptr->next;
-        deg++;
-    }
-
-    return deg;
-}
-
-int displayVertexDegIn(graphEdge edges[], int n, int N) {
-
-
-    int c;
-    for(int z=0; z < N; z++) {
-        c = 0;
-        for (int j = 0; j < n; j++) {
-            //cout << " (" << edges[j].start_ver << ", " << edges[j].end_ver << ", " << edges[j].weight << ") " << endl;
-            if(edges[j].end_ver == z) {
-            c = c + 1;
-            }
-        }
-
-        cout << "Stopien wchodzacy wierzcholka " << z << ": " << c << endl;
-    }
-}
-
-void displayLoops(adjNode* ptr, int i) {
-    cout << "Petle wierzcholka " << i << ":" << endl;
-    while (ptr != nullptr) {
-        if (i == ptr->val)
-            // (start_vertex, end_vertex, weight)
-            cout << "(" << i << ", " << ptr->val << ", " << ptr->cost << ") ";
-            ptr = ptr->next;
-    }
-    cout << endl;
-}
-
-void displaySepVertices(DiaGraph graph, int N) {
-    vector<int> vect = {};
-    for(int i = 0; i < N; i++) if (displayVertexDegOut(graph.head[i]) == 0) vect.push_back(i);
-
-    if(vect.size() > 0) {
-        cout << "Wierzcholki izolowane grafu:" << endl;
-        for(int i = 0; i < vect.size(); i++) {
-            cout << vect[i];
-            if (vect.size() - 1 != i) cout << ", ";
-        }
-    } else cout << "Graf nie ma wierzcholkow izolowanych." << endl;
-}
-
-void twoDirectEdges(DiaGraph graph, int N) {
-    vector<vector<int>> twoDirEdges;
-    vector<int> helper;
-
-    for(int j = 0; j < N; j++) {
-        adjNode* ptr = graph.head[j];
-
-        while (ptr != nullptr) {
-            adjNode* ptr2 = graph.head[ptr->val];
-
-            while(ptr2 != nullptr) {
-
-                helper = {ptr->val, j};
-                if(ptr2->val == j && ptr->val != j && find(twoDirEdges.begin(), twoDirEdges.end(), helper) == twoDirEdges.end()) {
-                    helper = {j, ptr->val};
-                    twoDirEdges.push_back(helper);
+                    cout << "Sasiedzi wierzcholka " << this->vertices[i] << ": ";
+                    for (int j=0; j<adj.size(); j++ ) cout << adj[j] << ", ";
+                    cout << endl;
                 }
-                ptr2 = ptr2->next;
             }
 
-            ptr = ptr->next;
-        }
-    }
-    cout << "Krawedzie dwukierunkowe:" << endl;
-    for(int j = 0; j < twoDirEdges.size(); j++) cout << "(" << twoDirEdges[j][0] << ", " << twoDirEdges[j][1] << ")" << endl;
-}
+            // 2
+            void everyVerAdj() {
+                set<int> vert = {};
 
-void everyVertexAdjacent(DiaGraph graph, int N) {
-    vector<int> adjacents, targets;
-    bool isInAdjacents;
+                for (int i = 0; i < this->n; i++) {
+                    set<int> adj = {};
 
-    for(int j = 0; j < N; j++) {
-        adjNode* ptr = graph.head[j];
-        isInAdjacents = false;
-        adjacents.clear();
-        for(int z = 0; z < adjacents.size(); z++) if(ptr->val == adjacents[z]) isInAdjacents = true;
+                    for (edge j: this->edges) {
+                        if (j.ver_in == this->vertices[i]) adj.insert(this->vertices[i]);
+                    }
 
-        while (ptr != nullptr) {
-            if(ptr->val != j && !isInAdjacents) adjacents.push_back(ptr->val);
+                    if(adj.size() >= this->n) vert.insert(this->vertices[i]);
+                }
 
-            ptr = ptr->next;
-        }
+                cout << "Wierzcholki bedace sasiadami kazdego wierzcholka:" << endl;
+                for(int i: vert) cout << i << ", ";
+            }
 
-        if(adjacents.size() == N - 1) targets.push_back(j);
-    }
+            // 3
+            void degOut() {
+                for (int i=0; i<n; i++) {
+                    int degOut = 0;
 
-    cout << "Wierzcholki bedace sasiadami kazdego innego wierzcholka:" << endl;
-    for (int j = 0; j < targets.size(); j++) {
-        cout << targets[j];
-        if(j != targets.size() - 1) cout << ", ";
-    }
-}
+                    for (int j=0; j<N; j++)
+                        if (this->vertices[i] == this->edges[j].ver_out) degOut++;
+
+                    cout << "Stopien wychodzacy wierzcholka " << this->vertices[i] << ": " << degOut << endl;
+                }
+            }
+
+            // 4
+            void degIn() {
+                for(int i=0; i<n; i++) {
+                    int degIn = 0;
+
+                    for (int j=0; j<N; j++)
+                        if (this->vertices[i] == this->edges[j].ver_in) degIn++;
+
+                    cout << "Stopien wchodzacy wierzcholka " << this->vertices[i] << ": " << degIn << endl;
+                }
+            }
+
+            // 5
+            void sepVertices() {
+                vector<int> sepVert = {};
+
+                for(int i: this->vertices) {
+                    int counter = 0;
+                    for(edge j: this->edges) {
+                        if(i == j.ver_out) counter++;
+                    }
+
+                    if(!counter) sepVert.push_back(i);
+                }
+
+                cout << "Wierzcholki izolowane: ";
+                for (int i: sepVert) cout << i << ", ";
+                cout << endl;
+            }
+
+            // 6
+            void disLoops() {
+                vector<int> loops = {};
+
+                for (edge i: this->edges)
+                    if(i.ver_out == i.ver_in)
+                        loops.push_back(i.ver_out);
+
+                cout << "Petle:" << endl;
+                for (int i: loops) cout << "(" << i << ", " << i << ")" << endl;
+
+            }
+
+            // 7
+            void twoDirEdges() {
+                vector<edge> twoDir = {};
+
+                for (edge i: this->edges) {
+                    for (edge j: this->edges) {
+                        if(i.ver_in == j.ver_out && i.ver_out == j.ver_in && i.ver_in != i.ver_out) {
+                            vector<int> helper = {j.ver_in, j.ver_out};
+
+                            // dodajemy krawedz tylko jesli krawedz odwrotna nie wystapila w twoDir
+                            if (twoDir.size()) {
+                                for (edge z: twoDir) {
+                                    if (z.ver_out != helper[0] && z.ver_in != helper[1])
+                                        twoDir.push_back(j);
+                                }
+                            } else twoDir.push_back(j);
+                        }
+                    }
+                }
+
+                cout << "Krawedzie dwukierunkowe: " << endl;
+                for (edge i: twoDir) cout << "{" << i.ver_out << ", " << i.ver_in << "}" << endl;
+            }
+};
